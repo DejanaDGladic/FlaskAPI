@@ -35,7 +35,8 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* ../../flaskapp.py ../../requirements.txt -r
+        run: zip -r release.zip flaskapp.py requirements.txt -x ".github/**"
+        #run: zip release.zip ./* ../../flaskapp.py ../../requirements.txt -r
         
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -61,8 +62,8 @@ jobs:
         with:
           name: python-app
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip -d flask_api
+      #- name: Unzip artifact for deployment
+       # run: unzip release.zip -d flask_api
 
       
       - name: Login to Azure
@@ -77,5 +78,5 @@ jobs:
         with:
           app-name: 'FlaskAPI'
           slot-name: 'Production'
-          package: './flask_api'
+          package: 'release.zip'
           
