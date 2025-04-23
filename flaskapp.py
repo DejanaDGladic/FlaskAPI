@@ -30,11 +30,11 @@ class BuildingDashboardDTO:
             'UseOfPremises': self.use_of_premises
         }
     
-@app.route('/check', methods=['GET'])
+@app.route('/api/check', methods=['GET'])
 def check():
     return jsonify("Checking...")
 
-@app.route('/delta-data', methods=['GET'])
+@app.route('/api/delta-data', methods=['GET'])
 def get_delta_data():
     # get timestamp in ISO8601 format only
     start_ts = request.args.get('start_timestamp')
@@ -85,5 +85,4 @@ def get_delta_data():
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    pass
+    app.run(debug=True)
