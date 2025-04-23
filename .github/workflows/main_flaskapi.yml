@@ -35,8 +35,8 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* ../../flaskapp.py ../../requirements.txt -r
-
+        run: zip -r release.zip FlaskAPI/ -x "*.git/*" -x ".github/*" -x ".gitignore"
+        
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
