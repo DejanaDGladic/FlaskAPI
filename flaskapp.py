@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-# from databricks import sql
+from databricks import sql
 from dateutil import parser
 import os
 
@@ -50,9 +50,33 @@ def get_delta_data():
         end_dt = parser.isoparse(end_ts) if end_ts else None
     except ValueError as ve:
         return jsonify({'error': f'Invalid timestamp format: {ve}'}), 400
+        with sql.connect(
+            server_hostname = os.getenv('SERVER_HOSTNAME'),
+            http_path = os.getenv('HTTP_PATH'),
+            access_token = os.getenv('ACCESS_TOKEN')
+        ) as connection:
+            cursor = connection.cursor()
+            # for example between 2025-02-26T13:25:14.000 and 2025-03-03T13:43:35.000 - watch appropriate format ISO8601 (without +00:00)
+            query = "SELECT * FROM `development`.`caims_common_gold_layer`.`building_dashboard` WHERE TaggedDate BETWEEN ? AND ?"
+            query_params = []
+            query_params.append(start_dt.isoformat())
+            query_params.append(end_dt.isoformat())
 
-    try:
-        return "Something"
+            cursor.execute(query, query_params)
+            rows = cursor.fetchall()
+            dtos = [
+                BuildingDashboardDTO(
+                    guid=row['Guid'],
+                    id=row['Id'],
+                    number_of_meter_in_building=row['NumberOfMeterInBuilding'],
+                    building_development_stage=row['BuildingDevelopmentStage'],
+                    building_structure=row['BuildingStructure'],
+                    tagged_date=row['TaggedDate'],
+                    initial_building_status=row['InitialBuildingStatus'],
+                    use_of_premises=row['UseOfPremises']
+                ).to_dict() for row in rows]
+
+            return jsonify(dtos)
         
     except Exception as e:
         return jsonify({'error': str(e)})
